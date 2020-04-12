@@ -120,13 +120,13 @@ void GhDisplayAll(reading_s rd, setpoint_s sd) {
  * @author Braydon Giallombardo
  * @param alarm Object of alarm_s
  */
-void GhDisplayAlarms(alarm_s * alarm) {
-    // Alarm Message Array
-    const char alarmnames[NALARMS][ALARMNMSZ] = {"No Alarms","High Temperature","Low Temperature","High Humidity","Low Humidity","High Pressure","Low Pressure"};
+void GhDisplayAlarms(alarm_s * head) {
+	alarm_s * cur;
+	cur = head;
 	fprintf(stdout, "Alarms\n");
 	for (int i = 0; i < NALARMS; i++) {
-        if (alarm[i].code != NOALARM) {
-            fprintf(stdout,"%s %s", alarmnames[i], ctime(&alarm[i].atime));
+        if (head[i].code != NOALARM) {
+            fprintf(stdout,"%s %s", alarmnames[i], ctime(&head[i].atime));
         }
 	}
 }
@@ -199,41 +199,55 @@ alarmlimit_s GhSetAlarmLimits(void) {
  * @param alarmpt
  * @param rdata
  */
-void GhSetAlarms(alarm_s calarm[NALARMS], alarmlimit_s alarmpt, reading_s rdata) {
+alarm_s GhSetAlarms(alarm_s * head, alarmlimit_s alarmpt, reading_s rdata) {
 	for(int i=0; i<NALARMS;i++) {
-        calarm[i].code = NOALARM;
+        head[i].code = NOALARM;
 	}
 	if (rdata.temperature >= alarmpt.hight) {
-		calarm[HTEMP].code = HTEMP;
-		calarm[HTEMP].atime = rdata.rtime;
-		calarm[HTEMP].value = rdata.temperature;
+		head[HTEMP].code = HTEMP;
+		head[HTEMP].atime = rdata.rtime;
+		head[HTEMP].value = rdata.temperature;
 	}
     else if (rdata.temperature <= alarmpt.lowt) {
-		calarm[LTEMP].code = LTEMP;
-		calarm[LTEMP].atime = rdata.rtime;
-		calarm[LTEMP].value = rdata.temperature;
+		head[LTEMP].code = LTEMP;
+		head[LTEMP].atime = rdata.rtime;
+		head[LTEMP].value = rdata.temperature;
 	}
 	if (rdata.humidity >= alarmpt.highh) {
-		calarm[HHUMID].code = HHUMID;
-		calarm[HHUMID].atime = rdata.rtime;
-		calarm[HHUMID].value = rdata.humidity;
+		head[HHUMID].code = HHUMID;
+		head[HHUMID].atime = rdata.rtime;
+		head[HHUMID].value = rdata.humidity;
 	}
     else if (rdata.humidity <= alarmpt.lowh) {
-		calarm[LHUMID].code = LHUMID;
-		calarm[LHUMID].atime = rdata.rtime;
-		calarm[LHUMID].value = rdata.humidity;
+		head[LHUMID].code = LHUMID;
+		head[LHUMID].atime = rdata.rtime;
+		head[LHUMID].value = rdata.humidity;
 	}
     if (rdata.pressure >= alarmpt.highp) {
-		calarm[HPRESS].code = HPRESS;
-		calarm[HPRESS].atime = rdata.rtime;
-		calarm[HPRESS].value = rdata.pressure;
+		head[HPRESS].code = HPRESS;
+		head[HPRESS].atime = rdata.rtime;
+		head[HPRESS].value = rdata.pressure;
     }
     else if (rdata.pressure <= alarmpt.lowp) {
-		calarm[LPRESS].code = LPRESS;
-		calarm[LPRESS].atime = rdata.rtime;
-		calarm[LPRESS].value = rdata.pressure;
+		head[LPRESS].code = LPRESS;
+		head[LPRESS].atime = rdata.rtime;
+		head[LPRESS].value = rdata.pressure;
     }
 }
+
+/** Gets current temperature
+ * @version 2020-04-12
+ * @author Braydon Giallombardo
+ * @return GhGetRandom of LSTEMP to USTEMP, or 25.0
+ */
+int GhSetOneAlarm(alarm_e code, time_t atime, double value, alarm_s * head) {}
+
+/** Gets current temperature
+ * @version 2020-04-12
+ * @author Braydon Giallombardo
+ * @return GhGetRandom of LSTEMP to USTEMP, or 25.0
+ */
+alarm_s * GhClearOneAlarm(alarm_e code, alarm_s * head) {}
 
 // Gets ##########################################################################
 

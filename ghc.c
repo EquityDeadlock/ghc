@@ -13,7 +13,13 @@ int main(void) {
 	setpoint_s sets = {0};
 	setpoint_s spts = {0};
 	alarmlimit_s alimits = {0};
-	alarm_s warn[NALARMS] = {0};
+	alarm_s * arecord;
+	arecord = (alarm_s *) calloc(1,sizeof(alarm_s));
+	if(arecord == NULL) {
+		printf("\nCannot allocate memory\n");
+		return 0;
+	}
+
 
 	// Initialization
 	GhControllerInit();
@@ -26,7 +32,7 @@ int main(void) {
 		creadings=GhGetReadings();
 		logged = GhLogData("ghdata.txt", creadings);
 		ctrl=GhSetControls(spts, creadings);
-		GhSetAlarms(warn, alimits, creadings);
+		GhSetAlarms(arecord, alimits, creadings);
 		GhDisplayAll(creadings, spts);
 		GhDisplayReadings(creadings);
 		GhDisplaySetpoints(spts);
