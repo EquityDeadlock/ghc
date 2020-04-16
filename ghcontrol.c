@@ -240,14 +240,65 @@ alarm_s GhSetAlarms(alarm_s * head, alarmlimit_s alarmpt, reading_s rdata) {
  * @author Braydon Giallombardo
  * @return GhGetRandom of LSTEMP to USTEMP, or 25.0
  */
-int GhSetOneAlarm(alarm_e code, time_t atime, double value, alarm_s * head) {}
+int GhSetOneAlarm(alarm_e code, time_t atime, double value, alarm_s * head) {
+	alarm_s * last;
+	alarm_s * cur;
+	cur = head;
+	if(cur->code != 0) {
+		while(cur !=  NULL)	{
+				if(cur->code == code)	{
+						return 0;
+				}
+				last = cur;
+				cur = cur->next;
+		}
+		cur = (alarm_s *)calloc(1, sizeof(alarm_s));
+		last->next = cur;
+		if(cur == NULL) {
+				return 0;
+		}
+	}
+	cur->code = code;
+	cur->atime = atime;
+	cur->value = value;
+	cur->next = NULL;
+	return 1;
+}
 
 /** Gets current temperature
  * @version 2020-04-12
  * @author Braydon Giallombardo
  * @return GhGetRandom of LSTEMP to USTEMP, or 25.0
  */
-alarm_s * GhClearOneAlarm(alarm_e code, alarm_s * head) {}
+alarm_s * GhClearOneAlarm(alarm_e code, alarm_s * head) {
+	alarm_s * cur;
+  alarm_s * last = NULL;
+  cur = last = head;
+
+  if(cur->code == code && cur->next == NULL) {
+      cur->code = NOALARM;
+      return head;
+  }
+
+  if(cur-> code == code && cur->next != NULL)
+  {
+      head = cur->next;
+      free(cur);
+      return head;
+  }
+
+  while(cur != NULL)
+  {
+      if(cur->code == code)
+      {
+          last->next = cur->next;
+          free(cur);
+      }
+      last = cur;
+      cur = cur->next;
+  }
+  return head;
+}
 
 // Gets ##########################################################################
 
