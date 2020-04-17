@@ -43,8 +43,6 @@
 #define SIMHUMIDITY 0 // Toggle HUMIDITY Simulation
 #define SIMPRESSURE 0 // Toggle PRESSURE Simulation
 
-//Constants
-const char alarmnames[NALARMS][ALARMNMSZ] = {"No Alarms","High Temperature","Low Temperature","High Humidity","Low Humidity","High Pressure","Low Pressure"};
 
 // Enumerated Types
 typedef enum { NOALARM,HTEMP,LTEMP,HHUMID,LHUMID,HPRESS,LPRESS }alarm_e;
@@ -80,7 +78,7 @@ typedef struct alarms {
 	alarm_e code;
 	time_t atime;
 	double value;
-  struct alarms * next;
+    struct alarms * next;
 }alarm_s;
 
 /// @cond INTERNAL
@@ -100,7 +98,7 @@ void GhDisplayAlarms(alarm_s * head);
 control_s GhSetControls(setpoint_s target, reading_s rdata);
 setpoint_s GhSetSetpoints(void);
 alarmlimit_s GhSetAlarmLimits(void);
-alarm_s GhSetAlarms(alarm_s * head, alarmlimit_s alarmpt, reading_s rdata);
+alarm_s * GhSetAlarms(alarm_s * head, alarmlimit_s alarmpt, reading_s rdata);
 int GhSetOneAlarm(alarm_e code, time_t atime, double value, alarm_s * head);
 alarm_s * GhClearOneAlarm(alarm_e code, alarm_s * head);
 // Gets

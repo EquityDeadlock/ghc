@@ -21,6 +21,7 @@ int main(void) {
 	}
 
 
+
 	// Initialization
 	GhControllerInit();
 	spts=GhSetSetpoints();
@@ -32,12 +33,12 @@ int main(void) {
 		creadings=GhGetReadings();
 		logged = GhLogData("ghdata.txt", creadings);
 		ctrl=GhSetControls(spts, creadings);
-		GhSetAlarms(arecord, alimits, creadings);
+		arecord=GhSetAlarms(arecord, alimits, creadings);
 		GhDisplayAll(creadings, spts);
 		GhDisplayReadings(creadings);
 		GhDisplaySetpoints(spts);
 		GhDisplayControls(ctrl);
-		GhDisplayAlarms(warn);
+		GhDisplayAlarms(arecord);
 		GhDelay(GHUPDATE);
 	}
 

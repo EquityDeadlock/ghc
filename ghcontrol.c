@@ -1,5 +1,9 @@
 #include "ghcontrol.h"
 
+//Constants
+const char alarmnames[NALARMS][ALARMNMSZ] = {"No Alarms","High Temperature","Low Temperature","High Humidity","Low Humidity","High Pressure","Low Pressure"};
+
+
 // Setup #######################################################################
 
 /** Initializes srand, GhDisplayHeaders
@@ -124,10 +128,10 @@ void GhDisplayAlarms(alarm_s * head) {
 	alarm_s * cur;
 	cur = head;
 	fprintf(stdout, "Alarms\n");
-	for (int i = 0; i < NALARMS; i++) {
-        if (head[i].code != NOALARM) {
-            fprintf(stdout,"%s %s", alarmnames[i], ctime(&head[i].atime));
-        }
+	while (cur = cur->next) {
+        /*if (cur->code != NOALARM) {*/
+           fprintf(stdout,"%s%s", cur->code, ctime(&cur->atime));
+
 	}
 }
 
@@ -199,40 +203,29 @@ alarmlimit_s GhSetAlarmLimits(void) {
  * @param alarmpt
  * @param rdata
  */
-alarm_s GhSetAlarms(alarm_s * head, alarmlimit_s alarmpt, reading_s rdata) {
+alarm_s * GhSetAlarms(alarm_s * head, alarmlimit_s alarmpt, reading_s rdata) {
 	for(int i=0; i<NALARMS;i++) {
-        head[i].code = NOALARM;
+        head->code = NOALARM;
 	}
 	if (rdata.temperature >= alarmpt.hight) {
-		head[HTEMP].code = HTEMP;
-		head[HTEMP].atime = rdata.rtime;
-		head[HTEMP].value = rdata.temperature;
+		GhSetOneAlarm(HTEMP,rdata.rtime,rdata.temperature,head);
 	}
-    else if (rdata.temperature <= alarmpt.lowt) {
-		head[LTEMP].code = LTEMP;
-		head[LTEMP].atime = rdata.rtime;
-		head[LTEMP].value = rdata.temperature;
+    else {
+		head = GhClearOneAlarm(HTEMP, head);
 	}
 	if (rdata.humidity >= alarmpt.highh) {
-		head[HHUMID].code = HHUMID;
-		head[HHUMID].atime = rdata.rtime;
-		head[HHUMID].value = rdata.humidity;
+		GhSetOneAlarm(HHUMID,rdata.rtime,rdata.humidity,head);
 	}
-    else if (rdata.humidity <= alarmpt.lowh) {
-		head[LHUMID].code = LHUMID;
-		head[LHUMID].atime = rdata.rtime;
-		head[LHUMID].value = rdata.humidity;
+    else {
+		head = GhClearOneAlarm(HHUMID, head);
 	}
     if (rdata.pressure >= alarmpt.highp) {
-		head[HPRESS].code = HPRESS;
-		head[HPRESS].atime = rdata.rtime;
-		head[HPRESS].value = rdata.pressure;
+		GhSetOneAlarm(HPRESS,rdata.rtime,rdata.pressure,head);
     }
-    else if (rdata.pressure <= alarmpt.lowp) {
-		head[LPRESS].code = LPRESS;
-		head[LPRESS].atime = rdata.rtime;
-		head[LPRESS].value = rdata.pressure;
+    else {
+		head = GhClearOneAlarm(HPRESS, head);
     }
+    return head;
 }
 
 /** Gets current temperature
@@ -246,16 +239,16 @@ int GhSetOneAlarm(alarm_e code, time_t atime, double value, alarm_s * head) {
 	cur = head;
 	if(cur->code != 0) {
 		while(cur !=  NULL)	{
-				if(cur->code == code)	{
-						return 0;
-				}
-				last = cur;
-				cur = cur->next;
+            if(cur->code == code)	{
+                return 0;
+            }
+            last = cur;
+            cur = cur->next;
 		}
 		cur = (alarm_s *)calloc(1, sizeof(alarm_s));
 		last->next = cur;
 		if(cur == NULL) {
-				return 0;
+            return 0;
 		}
 	}
 	cur->code = code;
@@ -271,9 +264,10 @@ int GhSetOneAlarm(alarm_e code, time_t atime, double value, alarm_s * head) {
  * @return GhGetRandom of LSTEMP to USTEMP, or 25.0
  */
 alarm_s * GhClearOneAlarm(alarm_e code, alarm_s * head) {
-	alarm_s * cur;
-  alarm_s * last = NULL;
-  cur = last = head;
+    alarm_s * cur;
+    alarm_s * last;
+    cur = head;
+    last = head;
 
   if(cur->code == code && cur->next == NULL) {
       cur->code = NOALARM;
